@@ -34,15 +34,16 @@ import (
 
 func TestPodSidecarLabelChangeTriggersAddIptablesAction(t *testing.T) {
 	client := fake.NewSimpleClientset()
-
-	err := os.Setenv("NODE_NAME", "test_node")
+	nodeName := "test_node"
+	err := os.Setenv("NODE_NAME", nodeName)
 	require.NoError(t, err)
+	stopCh := make(chan struct{})
 	t.Cleanup(func() {
 		os.Unsetenv("NODE_NAME")
+		close(stopCh)
 	})
-	stopCh := make(<-chan struct{})
 	c := NewByPassController(client)
-	go c.Run(stopCh)
+	c.Run(stopCh)
 	enabled := atomic.Bool{}
 	disabled := atomic.Bool{}
 
@@ -89,7 +90,7 @@ func TestPodSidecarLabelChangeTriggersAddIptablesAction(t *testing.T) {
 			},
 		},
 		Spec: corev1.PodSpec{
-			NodeName: "test-node",
+			NodeName: nodeName,
 		},
 	}
 
@@ -110,7 +111,7 @@ func TestPodSidecarLabelChangeTriggersAddIptablesAction(t *testing.T) {
 			},
 		},
 		Spec: corev1.PodSpec{
-			NodeName: "test-node",
+			NodeName: nodeName,
 		},
 	}
 
