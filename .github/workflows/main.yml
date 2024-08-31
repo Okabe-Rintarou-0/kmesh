@@ -1,6 +1,9 @@
 name: Kmesh CI Workflow
 
 on:
+  push:
+    branches:
+      - "main"
   pull_request:
   merge_group: # enable merge queue
   workflow_call:
