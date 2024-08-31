@@ -23,7 +23,7 @@ jobs:
       
       - name: Build 
         run: |
-          bash build.sh
+          make docker
 
       - name: Push by digest
         id: build
