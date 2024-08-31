@@ -23,7 +23,7 @@ jobs:
       
       - name: Build 
         run: |
-          ./kmesh_compile.sh
+          bash build.sh
 
       - name: Push by digest
         id: build
