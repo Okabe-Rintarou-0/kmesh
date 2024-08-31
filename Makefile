@@ -29,6 +29,9 @@ export PATH := $(GOBIN):$(PATH)
 include ./mk/bpf.vars.mk
 include ./mk/bpf.print.mk
 
+# print VERSION in make file
+$(info    $(VERSION))
+
 # compiler flags
 GOFLAGS := $(EXTRA_GOFLAGS)
 LDFLAGS := "-X google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn \
