@@ -81,6 +81,7 @@ all:
 	$(QUIET) $(GO) generate bpf/kmesh/bpf2go/bpf2go.go
 	
 	$(call printlog, BUILD, $(APPS1))
+	$(info $(LDFLAGS))
 	$(QUIET) (export PKG_CONFIG_PATH=$(PKG_CONFIG_PATH):$(ROOT_DIR)mk; \
 		$(GO) build -ldflags $(LDFLAGS) -ldflags "-linkmode=external -extldflags $(EXTLDFLAGS)" -tags $(ENHANCED_KERNEL) -o $(APPS1) $(GOFLAGS) ./daemon/main.go)
 	
