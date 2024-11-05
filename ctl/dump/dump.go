@@ -30,7 +30,8 @@ import (
 )
 
 const (
-	configDumpPrefix = "/debug/config_dump"
+	configDumpPrefix    = "/debug/config_dump"
+	configDumpBpfPrefix = "/debug/config_dump/bpf"
 )
 
 var log = logger.NewLoggerScope("kmeshctl/dump")
@@ -43,12 +44,16 @@ func NewCmd() *cobra.Command {
 kmeshctl dump <kmesh-daemon-pod> kernel-native
 	  
 # Dual Engine mode:
-kmeshctl dump <kmesh-daemon-pod> dual-engine`,
+kmeshctl dump <kmesh-daemon-pod> dual-engine
+
+# Dump bpf map in kernel:
+kmeshctl dump --bpf <kmesh-daemon-pod> kernel-native`,
 		Args: cobra.ExactArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
 			_ = RunDump(cmd, args)
 		},
 	}
+	cmd.Flags().BoolP("bpf", "", false, "Whether dump bpf map in kernel")
 	return cmd
 }
 
@@ -58,6 +63,13 @@ func RunDump(cmd *cobra.Command, args []string) error {
 	if mode != constants.KernelNativeMode && mode != constants.DualEngineMode {
 		log.Errorf("Error: Argument must be 'kernel-native' or 'dual-engine'")
 		os.Exit(1)
+	}
+	dumpBpf, _ := cmd.Flags().GetBool("bpf")
+	var prefix string
+	if dumpBpf {
+		prefix = configDumpBpfPrefix
+	} else {
+		prefix = configDumpPrefix
 	}
 
 	cli, err := utils.CreateKubeClient()
@@ -75,7 +87,7 @@ func RunDump(cmd *cobra.Command, args []string) error {
 		log.Errorf("failed to start port forwarder for Kmesh daemon pod %s: %v", podName, err)
 	}
 
-	url := fmt.Sprintf("http://%s%s/%s", fw.Address(), configDumpPrefix, mode)
+	url := fmt.Sprintf("http://%s%s/%s", fw.Address(), prefix, mode)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Errorf("failed to make HTTP request: %v", err)
